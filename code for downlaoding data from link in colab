@@ -1,0 +1,29 @@
+!wget --no-check-certificate \
+  https://storage.googleapis.com/mledu-datasets/cats_and_dogs_filtered.zip \
+  -O /tmp/cats_and_dogs_filtered.zip
+  
+ /************* code to unzip *************/
+ import os
+import zipfile
+
+local_zip = '/tmp/cats_and_dogs_filtered.zip'
+
+zip_ref = zipfile.ZipFile(local_zip, 'r')
+
+zip_ref.extractall('/tmp')
+zip_ref.close()
+
+/************ code to amke directories ****************/
+
+base_dir = '/tmp/cats_and_dogs_filtered'
+
+train_dir = os.path.join(base_dir, 'train')
+validation_dir = os.path.join(base_dir, 'validation')
+
+# Directory with our training cat/dog pictures
+train_cats_dir = os.path.join(train_dir, 'cats')
+train_dogs_dir = os.path.join(train_dir, 'dogs')
+
+# Directory with our validation cat/dog pictures
+validation_cats_dir = os.path.join(validation_dir, 'cats')
+validation_dogs_dir = os.path.join(validation_dir, 'dogs')
