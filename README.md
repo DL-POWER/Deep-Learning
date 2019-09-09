@@ -1,2 +1,3 @@
 # Deep-Learning
-a content of deep learning
+helping functions while developing code
+
