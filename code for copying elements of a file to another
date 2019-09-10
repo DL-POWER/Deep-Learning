@@ -15,6 +15,31 @@
 # os.path.getsize(PATH) gives you the size of the file
 # copyfile(source, destination) copies a file from source to destination
 # random.sample(list, len(list)) shuffles a list
+def split_data(SOURCE, TRAINING, TESTING, SPLIT_SIZE):
+# YOUR CODE STARTS HERE
+# YOUR CODE ENDS HERE
+
+
+  #************ MY CODE ******************#
+
+  Cat_names_list = os.listdir(SOURCE)
+  random.sample(Cat_names_list, len(Cat_names_list))
+
+  
+
+  
+  
+  for names in Cat_names_list[:int(SPLIT_SIZE * len(Cat_names_list))]:
+    if(~os.path.getsize(os.path.join(SOURCE,names))):
+      copyfile(os.path.join(SOURCE,names),os.path.join(TRAINING_CATS_DIR,names))
+
+  for names in Cat_names_list[int(SPLIT_SIZE * len(Cat_names_list))+1:]:
+    if(~os.path.getsize(os.path.join(CAT_SOURCE_DIR,names))):
+      copyfile(os.path.join(CAT_SOURCE_DIR,names),os.path.join(TESTING_CATS_DIR,names))
+
+  
+
+
 
 CAT_SOURCE_DIR = "/tmp/PetImages/Cat/"
 TRAINING_CATS_DIR = "/tmp/cats-v-dogs/training/cats/"
@@ -22,49 +47,6 @@ TESTING_CATS_DIR = "/tmp/cats-v-dogs/testing/cats/"
 DOG_SOURCE_DIR = "/tmp/PetImages/Dog/"
 TRAINING_DOGS_DIR = "/tmp/cats-v-dogs/training/dogs/"
 TESTING_DOGS_DIR = "/tmp/cats-v-dogs/testing/dogs/"
-
-def split_data(SOURCE, TRAINING, TESTING, SPLIT_SIZE):
-# YOUR CODE STARTS HERE
-
-
-
-
-
-# YOUR CODE ENDS HERE
-
-  CAT_SOURCE_DIR = "/tmp/PetImages/Cat/"
-  TRAINING_CATS_DIR = "/tmp/cats-v-dogs/training/cats/"
-  TESTING_CATS_DIR = "/tmp/cats-v-dogs/testing/cats/"
-  DOG_SOURCE_DIR = "/tmp/PetImages/Dog/"
-  TRAINING_DOGS_DIR = "/tmp/cats-v-dogs/training/dogs/"
-  TESTING_DOGS_DIR = "/tmp/cats-v-dogs/testing/dogs/"
-
-  #************ MY CODE ******************#
-
-  Cat_names_list = os.listdir(CAT_SOURCE_DIR)
-  random.sample(Cat_names_list, len(Cat_names_list))
-
-  Dog_names_list = os.listdir(DOG_SOURCE_DIR)
-  random.sample(Dog_names_list, len(Dog_names_list))
-
-  print(Dog_names_list[2])
-  
-  for names in Cat_names_list[:int(SPLIT_SIZE * len(Cat_names_list))]:
-    if(~os.path.getsize(os.path.join(CAT_SOURCE_DIR,names))):
-      copyfile(os.path.join(CAT_SOURCE_DIR,names),os.path.join(TRAINING_CATS_DIR,names))
-
-  for names in Cat_names_list[int(SPLIT_SIZE * len(Cat_names_list))+1:]:
-    if(~os.path.getsize(os.path.join(CAT_SOURCE_DIR,names))):
-      copyfile(os.path.join(CAT_SOURCE_DIR,names),os.path.join(TESTING_CATS_DIR,names))
-
-  for names in Dog_names_list[:int(SPLIT_SIZE * len(Dog_names_list))]:
-    if(~os.path.getsize(os.path.join(DOG_SOURCE_DIR,names))):
-      copyfile(os.path.join(CAT_SOURCE_DIR,names),os.path.join(TRAINING_DOGS_DIR,names))
-
-  for names in Dog_names_list[int(SPLIT_SIZE * len(Dog_names_list))+1:]:
-    if(~os.path.getsize(os.path.join(DOG_SOURCE_DIR,names))):
-      copyfile(os.path.join(DOG_SOURCE_DIR,names),os.path.join(TESTING_DOGS_DIR,names))
-
 
 split_size = .9
 split_data(CAT_SOURCE_DIR, TRAINING_CATS_DIR, TESTING_CATS_DIR, split_size)
