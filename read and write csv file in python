@@ -15,3 +15,14 @@ with open("/tmp/bbc-text.csv", 'r') as csvfile:
 
 print(len(sentences))
 print(sentences[0])
+
+********************************************************
+import io
+
+out_v = io.open('answers.csv', 'w', encoding='utf-8')
+j = 0
+out_v.write("id,label\n")
+for i in answers:
+  out_v.write( str(str(j)+","+str(i)+ "\n"))
+  j+=1
+out_v.close()
