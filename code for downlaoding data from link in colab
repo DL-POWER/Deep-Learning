@@ -27,3 +27,8 @@ train_dogs_dir = os.path.join(train_dir, 'dogs')
 # Directory with our validation cat/dog pictures
 validation_cats_dir = os.path.join(validation_dir, 'cats')
 validation_dogs_dir = os.path.join(validation_dir, 'dogs')
+
+*******************************************code for insstall tensorflow 2.00 and chheck its version**************
+
+!pip install tensorflow==2.0.0-beta0
+tf.__version__
