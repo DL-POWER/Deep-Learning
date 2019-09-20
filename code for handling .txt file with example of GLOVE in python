@@ -1,0 +1,18 @@
+# Note this is the 100 dimension version of GloVe from Stanford
+# I unzipped and hosted it on my site to make this notebook easier
+!wget --no-check-certificate \
+    https://storage.googleapis.com/laurencemoroney-blog.appspot.com/glove.6B.100d.txt \
+    -O /tmp/glove.6B.100d.txt
+embeddings_index = {};
+with open('/tmp/glove.6B.100d.txt') as f:
+    for line in f:
+        values = line.split();
+        word = values[0];
+        coefs = np.asarray(values[1:], dtype='float32');
+        embeddings_index[word] = coefs;
+
+embeddings_matrix = np.zeros((vocab_size+1, embedding_dim));
+for word, i in word_index.items():
+    embedding_vector = embeddings_index.get(word);
+    if embedding_vector is not None:
+        embeddings_matrix[i] = embedding_vector;
