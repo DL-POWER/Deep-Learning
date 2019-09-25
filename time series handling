@@ -1,0 +1,58 @@
+****************************ERRORS***************************
+print(keras.metrics.mean_squared_error(x_valid, naive_forecast).numpy())
+print(keras.metrics.mean_absolute_error(x_valid, naive_forecast).numpy())
+
+***************************SLIDING WINDOW********************
+
+def moving_average_forecast(series, window_size):
+  """Forecasts the mean of the last few values.
+     If window_size=1, then this is equivalent to naive forecast"""
+  forecast = []
+  for time in range(len(series) - window_size):
+    forecast.append(series[time:time + window_size].mean())
+  return np.array(forecast)
+  
+moving_avg = moving_average_forecast(series, 30)[split_time - 30:]
+
+plt.figure(figsize=(10, 6))
+plot_series(time_valid, x_valid)
+plot_series(time_valid, moving_avg)
+
+****************************PRINTING SERIES*******************
+
+def plot_series(time, series, format="-", start=0, end=None):
+    plt.plot(time[start:end], series[start:end], format)
+    plt.xlabel("Time")
+    plt.ylabel("Value")
+    plt.grid(True)
+    
+***************************HANDLING USING DIFFERENCE SERIES**************
+diff_series = (series[365:] - series[:-365])
+diff_time = time[365:]
+
+plt.figure(figsize=(10, 6))
+plot_series(diff_time, diff_series)
+plt.show()
+
+diff_moving_avg = moving_average_forecast(diff_series, 50)[split_time - 365 - 50:]
+
+plt.figure(figsize=(10, 6))
+plot_series(time_valid, diff_series[split_time - 365:])
+plot_series(time_valid, diff_moving_avg)
+plt.show()
+
+diff_moving_avg_plus_past = series[split_time - 365:-365] + diff_moving_avg
+
+plt.figure(figsize=(10, 6))
+plot_series(time_valid, x_valid)
+plot_series(time_valid, diff_moving_avg_plus_past)
+plt.show()
+
+******************************APPLYING DIFFERENCE SEIRES ON PREVIOUS SEREIS*******************
+
+diff_moving_avg_plus_smooth_past = moving_average_forecast(series[split_time - 370:-360], 10) + diff_moving_avg
+
+plt.figure(figsize=(10, 6))
+plot_series(time_valid, x_valid)
+plot_series(time_valid, diff_moving_avg_plus_smooth_past)
+plt.show()
