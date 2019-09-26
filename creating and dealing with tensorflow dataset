@@ -9,3 +9,53 @@ dataset = dataset.batch(2).prefetch(1)
 for x,y in dataset:
   print("x = ", x.numpy())
   print("y = ", y.numpy())
+
+*********************************creating window data data from series and handling it*****************
+def windowed_dataset(series, window_size, batch_size, shuffle_buffer):
+  dataset = tf.data.Dataset.from_tensor_slices(series)
+  dataset = dataset.window(window_size + 1, shift=1, drop_remainder=True)
+  dataset = dataset.flat_map(lambda window: window.batch(window_size + 1))
+  dataset = dataset.shuffle(shuffle_buffer).map(lambda window: (window[:-1], window[-1]))
+  dataset = dataset.batch(batch_size).prefetch(1)
+  return dataset
+  
+lr_schedule = tf.keras.callbacks.LearningRateScheduler(
+    lambda epoch: 1e-8 * 10**(epoch / 20))
+optimizer = tf.keras.optimizers.SGD(lr=1e-8, momentum=0.9)
+model.compile(loss="mse", optimizer=optimizer)
+history = model.fit(dataset, epochs=100, callbacks=[lr_schedule], verbose=0)
+
+lrs = 1e-8 * (10 ** (np.arange(100) / 20))
+plt.semilogx(lrs, history.history["loss"])
+plt.axis([1e-8, 1e-3, 0, 300])
+
+###############choose the minima###############
+
+window_size = 30
+dataset = windowed_dataset(x_train, window_size, batch_size, shuffle_buffer_size)
+
+model = tf.keras.models.Sequential([
+  tf.keras.layers.Dense(10, activation="relu", input_shape=[window_size]),
+  tf.keras.layers.Dense(10, activation="relu"),
+  tf.keras.layers.Dense(1)
+])
+
+optimizer = tf.keras.optimizers.SGD(lr=8e-6, momentum=0.9)
+model.compile(loss="mse", optimizer=optimizer)
+history = model.fit(dataset, epochs=500, verbose=0)
+
+
+forecast = []
+for time in range(len(series) - window_size):
+  forecast.append(model.predict(series[time:time + window_size][np.newaxis]))
+
+forecast = forecast[split_time-window_size:]
+results = np.array(forecast)[:, 0, 0]
+
+
+plt.figure(figsize=(10, 6))
+
+plot_series(time_valid, x_valid)
+plot_series(time_valid, results)
+
+tf.keras.metrics.mean_absolute_error(x_valid, results).numpy()
