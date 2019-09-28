@@ -1,0 +1,96 @@
+*************************creating windowed dataset ***********************
+def windowed_dataset(series, window_size, batch_size, shuffle_buffer):
+    series = tf.expand_dims(series, axis=-1)
+    ds = tf.data.Dataset.from_tensor_slices(series)
+    ds = ds.window(window_size + 1, shift=1, drop_remainder=True)
+    ds = ds.flat_map(lambda w: w.batch(window_size + 1))
+    ds = ds.shuffle(shuffle_buffer)
+    ds = ds.map(lambda w: (w[:-1], w[1:]))
+    return ds.batch(batch_size).prefetch(1)
+    
+   ***********************creating forecast method in time series*****************
+   def model_forecast(model, series, window_size):
+    ds = tf.data.Dataset.from_tensor_slices(series)
+    ds = ds.window(window_size, shift=1, drop_remainder=True)
+    ds = ds.flat_map(lambda w: w.batch(window_size))
+    ds = ds.batch(32).prefetch(1)
+    forecast = model.predict(ds)
+    return forecast
+    
+    *********************************example of modelwith varialble learning rate******************
+    tf.keras.backend.clear_session()
+tf.random.set_seed(51)
+np.random.seed(51)
+
+window_size = 30
+train_set = windowed_dataset(x_train, window_size, batch_size=128, shuffle_buffer=shuffle_buffer_size)
+
+model = tf.keras.models.Sequential([
+  tf.keras.layers.Conv1D(filters=32, kernel_size=5,
+                      strides=1, padding="causal",
+                      activation="relu",
+                      input_shape=[None, 1]),
+  tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32, return_sequences=True)),
+  tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32, return_sequences=True)),
+  tf.keras.layers.Dense(1),
+  tf.keras.layers.Lambda(lambda x: x * 200)
+])
+lr_schedule = tf.keras.callbacks.LearningRateScheduler(
+    lambda epoch: 1e-8 * 10**(epoch / 20))
+optimizer = tf.keras.optimizers.SGD(lr=1e-8, momentum=0.9)
+model.compile(loss=tf.keras.losses.Huber(),
+              optimizer=optimizer,
+              metrics=["mae"])
+history = model.fit(train_set, epochs=100, callbacks=[lr_schedule])
+
+
+
+*******************choosing optimal lr from minima****************
+plt.semilogx(history.history["lr"], history.history["loss"])
+plt.axis([1e-8, 1e-4, 0, 30])
+
+***********************forecast seris**********************
+rnn_forecast = model_forecast(model, series[..., np.newaxis], window_size)
+rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
+
+
+***********************plotting losses************************
+import matplotlib.image  as mpimg
+import matplotlib.pyplot as plt
+
+#-----------------------------------------------------------
+# Retrieve a list of list results on training and test data
+# sets for each training epoch
+#-----------------------------------------------------------
+mae=history.history['mae']
+loss=history.history['loss']
+
+epochs=range(len(loss)) # Get number of epochs
+
+#------------------------------------------------
+# Plot MAE and Loss
+#------------------------------------------------
+plt.plot(epochs, mae, 'r')
+plt.plot(epochs, loss, 'b')
+plt.title('MAE and Loss')
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend(["MAE", "Loss"])
+
+plt.figure()
+
+epochs_zoom = epochs[200:]
+mae_zoom = mae[200:]
+loss_zoom = loss[200:]
+
+#------------------------------------------------
+# Plot Zoomed MAE and Loss
+#------------------------------------------------
+plt.plot(epochs_zoom, mae_zoom, 'r')
+plt.plot(epochs_zoom, loss_zoom, 'b')
+plt.title('MAE and Loss')
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend(["MAE", "Loss"])
+
+plt.figure()
