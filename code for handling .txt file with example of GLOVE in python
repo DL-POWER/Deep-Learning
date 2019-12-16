@@ -1,3 +1,4 @@
+#ref:https://github.com/DL-POWER/Deep-Learning/edit/master/code%20for%20handling%20.txt%20file%20with%20example%20of%20GLOVE%20in%20python
 # Note this is the 100 dimension version of GloVe from Stanford
 # I unzipped and hosted it on my site to make this notebook easier
 !wget --no-check-certificate \
